@@ -62,5 +62,4 @@ def predict():
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
-if __name__ == '__main__':
-    app.run(debug=True)
+app.run(host='0.0.0.0', port=4050, debug=True)
