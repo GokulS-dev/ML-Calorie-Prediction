@@ -46,7 +46,7 @@
 
         {% if keras_prediction is defined %}
         <div class="result">
-            <p><strong>Keras Model Prediction:</strong> {{ keras_prediction }} Calories</p>
+            <p><strong>Predicted Calories Burned:</strong> {{ keras_prediction }} Calories</p>
             <p><strong>Calorie Level:</strong> {{ calorie_level }}</p>
         </div>
 
@@ -59,34 +59,28 @@
         <canvas id="calorieChart"></canvas>
         <script>
             const kerasPrediction = {{ keras_prediction }};
-            const labels = ['Low', 'Medium', 'High'];
-            let dataCounts = [0, 0, 0];
-
-            function categorize(pred) {
-                if (pred < 200) return 0;
-                if (pred <= 400) return 1;
-                return 2;
-            }
-
-            dataCounts[categorize(kerasPrediction)]++;
 
             new Chart(document.getElementById('calorieChart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Low Calories', 'Medium Calories', 'High Calories'],
+                    labels: ['Calories Burned'],
                     datasets: [{
-                        label: 'Keras Model Prediction Level',
-                        data: dataCounts,
-                        backgroundColor: ['#ff4d4d', '#ffcc00', '#4caf50'],
-                        borderColor: ['#e60000', '#cc9900', '#388e3c'],
+                        label: 'Predicted Calories',
+                        data: [kerasPrediction],
+                        backgroundColor: '#42a5f5',
+                        borderColor: '#1e88e5',
                         borderWidth: 1
                     }]
                 },
                 options: {
+                    responsive: true,
                     scales: {
                         y: {
                             beginAtZero: true,
-                            precision: 0
+                            title: {
+                                display: true,
+                                text: 'Calories'
+                            }
                         }
                     }
                 }
