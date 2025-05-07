@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calories Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial; margin: 20px; }
+        .form-container { max-width: 500px; margin: auto; }
+        input, select { width: 100%; padding: 8px; margin: 5px 0 15px 0; box-sizing: border-box; }
+        input[type="submit"] { background-color: gold; border: none; cursor: pointer; font-weight: bold; }
+        .result, .suggestions { background: #f0f0f0; padding: 10px; margin-top: 20px; }
+        canvas { max-width: 600px; margin-top: 30px; }
+        label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>Calories Prediction</h2>
+        <form action="/predict" method="post">
+            <label>Gender:</label>
+            <select name="Gender" required>
+                <option value="Male" {% if input_values and input_values['Gender'] == 'Male' %}selected{% endif %}>Male</option>
+                <option value="Female" {% if input_values and input_values['Gender'] == 'Female' %}selected{% endif %}>Female</option>
+            </select>
+
+            <label>Age:</label>
+            <input type="number" name="Age" value="{{ input_values['Age'] if input_values else '' }}" required>
+
+            <label>Height (cm):</label>
+            <input type="number" name="Height" value="{{ input_values['Height'] if input_values else '' }}" required>
+
+            <label>Weight (kg):</label>
+            <input type="number" name="Weight" value="{{ input_values['Weight'] if input_values else '' }}" required>
+
+            <label>Duration (min):</label>
+            <input type="number" name="Duration" value="{{ input_values['Duration'] if input_values else '' }}" required>
+
+            <label>Heart Rate:</label>
+            <input type="number" name="Heart_Rate" value="{{ input_values['Heart_Rate'] if input_values else '' }}" required>
+
+            <label>Body Temperature (°C):</label>
+            <input type="number" step="0.1" name="Body_Temp" value="{{ input_values['Body_Temp'] if input_values else '' }}" required>
+
+            <input type="submit" value="Predict">
+        </form>
+
+        {% if keras_prediction is defined %}
+        <div class="result">
+            <p><strong>Keras Model Prediction:</strong> {{ keras_prediction }} Calories</p>
+            <p><strong>Calorie Level:</strong> {{ calorie_level }}</p>
+        </div>
+
+        {% if suggestions %}
+        <div class="suggestions">
+            <p><strong>Suggestions:</strong> {{ suggestions }}</p>
+        </div>
+        {% endif %}
+
+        <canvas id="calorieChart"></canvas>
+        <script>
+            const kerasPrediction = {{ keras_prediction }};
+            const labels = ['Low', 'Medium', 'High'];
+            let dataCounts = [0, 0, 0];
+
+            function categorize(pred) {
+                if (pred < 200) return 0;
+                if (pred <= 400) return 1;
+                return 2;
+            }
+
+            dataCounts[categorize(kerasPrediction)]++;
+
+            new Chart(document.getElementById('calorieChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Low Calories', 'Medium Calories', 'High Calories'],
+                    datasets: [{
+                        label: 'Keras Model Prediction Level',
+                        data: dataCounts,
+                        backgroundColor: ['#ff4d4d', '#ffcc00', '#4caf50'],
+                        borderColor: ['#e60000', '#cc9900', '#388e3c'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            precision: 0
+                        }
+                    }
+                }
+            });
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>
